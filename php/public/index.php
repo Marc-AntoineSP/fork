@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-use function Php\Src\db_users\users_list;
+use Php\Src\db\Connection;
+use Php\Src\db_users\Users;
 
 require __DIR__ ."/../vendor/autoload.php";
 
 // API :
 
+$users_db = new Users(Connection::connnect());
 $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -15,7 +17,7 @@ header('Content-Type:application/json');
 
 switch(true){
     case $method == 'GET' && $path == '/':
-        $userlist = users_list();
+        $userlist = $users_db->getAll();
         echo json_encode(['data'=> $userlist]);
         exit;
     case $method == 'POST' && $path == '/conversation':

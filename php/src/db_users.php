@@ -3,15 +3,21 @@ declare(strict_types=1);
 
 namespace Php\Src\db_users;
 
-use function Php\Src\db\pdo_sql;
+use PDO;
 
 // REQUETES : 
 
-// Consulter la liste :
+final class Users {
+    public function __construct(private PDO $pdo) {}
 
-function users_list():array{
-    $pdo = pdo_sql();
-    $sql = 'SELECT id, username, hash_password, created_at FROM Users';
-    $users = $pdo->query($sql)->fetchAll();
-    return $users;
+    /** 
+     * GET ALL Users
+     * @return list<array{id:int,username:string}> 
+    */
+    public function getAll():array{
+
+        $sql = 'SELECT id, username FROM Users';
+        return $this->pdo->query($sql)->fetchAll();
+
+    }
 }

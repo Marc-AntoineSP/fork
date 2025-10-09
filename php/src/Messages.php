@@ -9,6 +9,15 @@ use PDO;
 final class Messages {
     public function __construct(private PDO $pdo) {}
 
+    public function getMessageById(int $id): array {
+        $sql = "SELECT * FROM Messages WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $message = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $message;
+    }
+
     /**
      * Summary of getMessageByConversationId
      * @param int $id

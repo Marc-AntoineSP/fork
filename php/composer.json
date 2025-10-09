@@ -1,14 +1,6 @@
 {
     "name": "pc2/apiphp",
     "description": "Projet Cube 2",
-    "autoload": {
-        "psr-4": {
-            "Pc2\\Apiphp\\": "{\"psr-4\":{\"App\\\\\":\"src/\"}}"
-        },
-        "files": [
-            "src/db_users.php",
-            "src/db.php"
-        ]
-    },
+    "autoload": { "psr-4": { "Php\\Src\\": "src/" } },
     "require": {}
 }

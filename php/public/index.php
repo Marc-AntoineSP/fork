@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Php\Src\db\Connection;
-use Php\Src\db_users\Users;
+use Php\Src\Connection;
+use Php\Src\Users;
 
 require __DIR__ ."/../vendor/autoload.php";
 

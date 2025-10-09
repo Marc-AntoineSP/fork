@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Pc2\\Apiphp\\' => array($baseDir . '/{"psr-4":{"App/":"src/"}}'),
+    'Php\\Src\\' => array($baseDir . '/src'),
 );

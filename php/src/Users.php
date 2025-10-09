@@ -34,4 +34,13 @@ final class Users {
         $user = $stmt->fetch();
         return $user;
     }
+
+    public function getUserByUsername(string $username):array{
+        $sql = 'SELECT * FROM Users WHERE username = :username';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':username', $username, PDO::PARAM_STR);
+        $stmt->execute();
+        $user = $stmt->fetch();
+        return $user;
+    }
 }

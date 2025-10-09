@@ -22,4 +22,18 @@ final class Conversations {
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $data;
     }
+
+    /**
+     * GET /conversations/:id
+     * @param int $id
+     * @return array
+     */
+    public function getConversationById(int $id):array {
+        $sql = 'SELECT id, name, recipient_id WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt = $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt = $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data;
+    }
 }

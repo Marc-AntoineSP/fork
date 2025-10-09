@@ -1,0 +1,10 @@
+{
+    "name": "pc2/apiphp",
+    "description": "Projet Cube 2",
+    "autoload": {
+        "psr-4": {
+            "Pc2\\Apiphp\\": "{\"psr-4\":{\"App\\\\\":\"src/\"}}"
+        }
+    },
+    "require": {}
+}

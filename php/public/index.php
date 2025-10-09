@@ -59,6 +59,15 @@ switch(true){
         }
         echo json_encode(["data"=> $messages]);
         exit;
+    case $method == "GET"&& preg_match("#^/messages/(?P<id>\d+)#", $path, $m):
+        $id = (int)$m["id"];
+        $message = $messages_db->getMessageById($id);
+        if(!$message) {
+            http_response_code(404);
+            echo json_encode(["error"=> "Message $id doesn't exist"]);
+        }
+        echo json_encode(["data"=> $message]);
+        exit;
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

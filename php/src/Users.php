@@ -20,4 +20,13 @@ final class Users {
         return $this->pdo->query($sql)->fetchAll();
 
     }
+
+    public function getUserById(int $id):array{
+        $sql = 'SELECT id, username FROM Users WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch();
+        return $user;
+    }
 }

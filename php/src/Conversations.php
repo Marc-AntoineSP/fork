@@ -7,9 +7,7 @@ namespace Php\Src;
 use PDO;
 
 final class Conversations {
-    private $pdo = null;
-
-    public function __construct(PDO $pdo) {}
+    public function __construct(private PDO $pdo) {}
 
     /**
      * GET /conversations
@@ -17,10 +15,7 @@ final class Conversations {
      */
     public function getAll():array {
         $sql = 'SELECT id, name FROM Conversations';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt = $stmt->execute();
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $data;
+        return $this->pdo->query($sql)->fetchAll();
     }
 
     /**
@@ -31,8 +26,8 @@ final class Conversations {
     public function getConversationById(int $id):array {
         $sql = 'SELECT id, name, recipient_id WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
-        $stmt = $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt = $stmt->execute();
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         return $data;
     }

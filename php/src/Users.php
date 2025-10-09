@@ -21,6 +21,11 @@ final class Users {
 
     }
 
+    /**
+     * Summary of getUserById
+     * @param int $id
+     * @return array
+     */
     public function getUserById(int $id):array{
         $sql = 'SELECT id, username FROM Users WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);

@@ -24,11 +24,11 @@ final class Conversations {
      * @return array
      */
     public function getConversationById(int $id):array {
-        $sql = 'SELECT id, name, recipient_id WHERE id = :id';
+        $sql = 'SELECT id, name, recipient_id FROM Conversations WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $data;
     }
 }

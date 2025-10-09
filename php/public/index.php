@@ -27,7 +27,7 @@ switch(true){
         $user = $users_db->getUserById($id);
         if(!$user) {
             http_response_code(404);
-            echo json_encode(['error'=> 'User not found']);
+            echo json_encode(['error'=> "User $id not found"]);
             exit;
         }
         echo json_encode(['data'=> $user]);
@@ -35,6 +35,16 @@ switch(true){
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
         echo json_encode(['data'=> $conversations]);
+        exit;
+    case $method == 'GET'&& preg_match('#^/conversations/(?P<id>\d+)#', $path, $m):
+        $id = (int)$m['id'];
+        $conversation = $conversations_db->getConversationById($id);
+        if(!$conversation) {
+            http_response_code(404);
+            echo json_encode(['error'=> "Conversation $id doesn't exist"]);
+            exit;
+        }
+        echo json_encode(['data'=> $conversation]);
         exit;
     default:
         http_response_code(404);

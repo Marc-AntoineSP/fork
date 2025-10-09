@@ -1,6 +1,10 @@
 <?php
-
 declare(strict_types=1);
+
+namespace Php\Src\db;
+
+use PDO;
+
 
 function pdo_sql():PDO{
     $dsn  = 'mysql:host=127.0.0.1;port=3306;dbname=projet_cube2;charset=utf8mb4';

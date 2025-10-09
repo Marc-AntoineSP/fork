@@ -1,6 +1,9 @@
 <?php
 
 declare(strict_types=1);
+
+use function Php\Src\db_users\users_list;
+
 require __DIR__ ."/../vendor/autoload.php";
 
 // API :

@@ -4,7 +4,11 @@
     "autoload": {
         "psr-4": {
             "Pc2\\Apiphp\\": "{\"psr-4\":{\"App\\\\\":\"src/\"}}"
-        }
+        },
+        "files": [
+            "src/db_users.php",
+            "src/db.php"
+        ]
     },
     "require": {}
 }

@@ -46,11 +46,11 @@ switch(true){
             httpFail(404, "User $id not found");
         }
         httpOk(200, $user);
-        
+
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
-        echo json_encode(['data'=> $conversations]);
-        exit;
+        httpOk(200, $conversations);
+        
     case $method == 'GET'&& preg_match('#^/conversations/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $conversation = $conversations_db->getConversationById($id);

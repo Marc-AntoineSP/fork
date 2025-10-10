@@ -52,12 +52,13 @@ final class Messages {
             $id = (int)$this->pdo->lastInsertId();
             if($id <= 0){return null;}
 
-            $getSql = 'SELECT id, sender_id, conversation_id, content, created_at FROM Messages WHERE id = :id';
+            $getSql = 'SELECT id, sender_id, conversation_id, content, sent_at  FROM Messages WHERE id = :id';
             $getSql = $this->pdo->prepare($getSql);
             $getSql->bindValue(':id', $id, PDO::PARAM_INT);
             $getSql->execute();
             return $getSql->fetch(PDO::FETCH_ASSOC) ?: null;
         }catch(\PDOException $e){
+            echo $e->getMessage();
             return null;
         }
     }

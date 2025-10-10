@@ -92,13 +92,13 @@ switch(true){
         $message = $_POST["message"] ??"";
         $user_id = (int)$_POST["user_id"];
         if(empty($conv_id) || empty($user_id)) {
-            httpFail(402, "Invalid POST request");
+            httpFail(400, "Invalid POST request");
         }
         $res = $messages_db->addMessage($user_id, $conv_id, $message);
-        if($res) {
-            httpOk(201, [$ok]);
+        if(!$res) {
+            httpFail(500, "Insert failed");
         }
-        httpFail(500, "Insert failed");
+        httpOk(201, $res);
         
     case $method == "POST"&& $path == '/conversations':
         $main_user_id = (int)$_POST['user_id'] ?? "";

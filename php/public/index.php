@@ -120,7 +120,8 @@ switch(true){
         http_response_code(201);
         header('Location http://127.0.0.1:8000/conversations');
         exit;
-
+    case $method == "UPDATE" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
+        $message_id = (int)$m["msg_id"];
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

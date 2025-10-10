@@ -46,4 +46,17 @@ final class Messages {
             return false;
         }
     }
+
+    public function updateMessage(int $msg_id, string $content):bool{
+        try{
+        $sql = 'UPDATE Messages SET content = :content WHERE id = :msg_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':msg_id', $msg_id, PDO::PARAM_INT);
+        $stmt->bindValue(':content', $content, PDO::PARAM_INT);
+        $ok = $stmt->execute();
+        return $ok && $stmt->rowCount() === 1;
+        }catch(\PDOException $e){
+            return false;
+        }
+    }
 }

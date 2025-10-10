@@ -23,12 +23,12 @@ final class Conversations {
      * @param int $id
      * @return array
      */
-    public function getConversationById(int $id):array {
+    public function getConversationById(int $id):array|bool {
         $sql = 'SELECT id, name, recipient_id FROM Conversations WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
         return $data;
     }
 

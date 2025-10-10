@@ -12,6 +12,8 @@ require __DIR__ ."/../vendor/autoload.php";
 
 // API :
 
+$users_id = ['admin'=>1, 'user1'=>2,'user2'=> 3];
+
 $users_db = new Users(Connection::connect());
 $auth = new Authentification($users_db);    
 $conversations_db = new Conversations(Connection::connect());
@@ -48,6 +50,16 @@ switch(true){
             httpFail(404, "User $id not found");
         }
         httpOk(200, $user);
+    
+    // ON RECUPERE TOUT LES MESSAGES D UN USER SPECIFIQUE VIA SON ID
+    case $method == "GET"&& preg_match("#^/users/(?P<recipient_id>\d+)/messages$#", $path, $m):{
+        $recipient_id = (int)$m["recipient_id"];
+        $messages = $messages_db->getMessagesBetween($users_id['admin'], $recipient_id);
+        if(empty($messages)) {
+            httpFail(400, 'Vide');
+        }
+        httpOk(200, $messages);
+    }
 
     // ON RECUPERE TOUTES LES CONVERSATIONS -si conversations-
     case $method == 'GET' && $path == '/conversations':

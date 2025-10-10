@@ -84,6 +84,20 @@ final class Messages {
         }
     }
 
+    public function getMessagesBetween(int $a, int $b): array|false {
+        $sql = 'SELECT id, sender_id, recipient_id, content
+                FROM Messages
+                WHERE (sender_id = :a1 AND recipient_id = :b1)
+                OR (sender_id = :b2 AND recipient_id = :a2)
+                ORDER BY id ASC';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':a1' => $a, ':b1' => $b,
+            ':a2' => $a, ':b2' => $b,
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     // public function deleteMessage(int $msg_id):bool{
     //     try{
     //         $sql = 'DELETE ';

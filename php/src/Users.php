@@ -27,7 +27,7 @@ final class Users {
      * @return array
      */
     public function getUserById(int $id):array{
-        $sql = 'SELECT id, username FROM Users WHERE id = :id';
+        $sql = 'SELECT id, username, hash_password FROM Users WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -35,7 +35,7 @@ final class Users {
         return $user;
     }
 
-    public function getUserByUsername(string $username):array{
+    public function getUserByUsername(string $username):array|bool{
         $sql = 'SELECT * FROM Users WHERE username = :username';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':username', $username, PDO::PARAM_STR);

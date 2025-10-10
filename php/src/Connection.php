@@ -6,7 +6,7 @@ namespace Php\Src;
 use PDO;
 
 final class Connection {
-    public static function connnect():PDO {
+    public static function connect():PDO {
         $host = getenv('PMA') ?: '127.0.0.1';
         $port = (int)getenv('PMAPORT') ?: 3306;
         $db = getenv('PMADB') ?:'projet_cube2';

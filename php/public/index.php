@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Php\Src\Authentification;
 use Php\Src\Connection;
 use Php\Src\Conversations;
 use Php\Src\Messages;
@@ -11,9 +12,10 @@ require __DIR__ ."/../vendor/autoload.php";
 
 // API :
 
-$users_db = new Users(Connection::connnect());
-$conversations_db = new Conversations(Connection::connnect());
-$messages_db = new Messages(Connection::connnect());
+$users_db = new Users(Connection::connect());
+$auth = new Authentification($users_db);    
+$conversations_db = new Conversations(Connection::connect());
+$messages_db = new Messages(Connection::connect());
 
 $method = $_SERVER['REQUEST_METHOD'];
 $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
@@ -68,6 +70,24 @@ switch(true){
         }
         echo json_encode(["data"=> $message]);
         exit;
+    case $method == "POST"&& $path == "/auth":
+        $username = trim($_POST["username"] ?? '');
+        $password = trim($_POST["password"] ?? '');
+        if(empty($username) || empty($password)) {
+            http_response_code(422);
+            echo json_encode(["error"=> "Veuillez renseigner les 2 champs svp"]);
+            exit;
+        }
+        $errLog = $auth->login($username, $password);
+        if($errLog['error']) {
+            http_response_code(401);
+            echo json_encode(['error'=> $errLog['reason']]);
+            exit;
+        }
+        http_response_code(303);
+        header("Location: /conversations");
+        exit;
+
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

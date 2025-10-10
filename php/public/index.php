@@ -50,27 +50,23 @@ switch(true){
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
         httpOk(200, $conversations);
-        
+
     case $method == 'GET'&& preg_match('#^/conversations/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $conversation = $conversations_db->getConversationById($id);
         if(!$conversation) {
-            http_response_code(404);
-            echo json_encode(['error'=> "Conversation $id doesn't exist"]);
-            exit;
+            httpFail(404, "Conversation $id doesn't exist");
         }
-        echo json_encode(['data'=> $conversation]);
-        exit;
+        httpOk(200, $conversation);
+
     case $method == 'GET'&& preg_match('#^/conversations/(?P<convId>\d+)/messages$#', $path, $m):
         $convId = (int)$m['convId'];
         $messages = $messages_db->getMessageByConversationId($convId);
         if(!$messages){
-            http_response_code(404);
-            echo json_encode(['error'=> "Conversation $id doesn't exist"]);
-            exit;
+            httpFail(404, "Conversation $convId doesn't exist");
         }
-        echo json_encode(["data"=> $messages]);
-        exit;
+        httpOk(200, $messages);
+
     case $method == "GET"&& preg_match("#^/messages/(?P<id>\d+)#", $path, $m):
         $id = (int)$m["id"];
         $message = $messages_db->getMessageById($id);

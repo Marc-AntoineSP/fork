@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace Php\Src;
 
 use PDO;
-use Throwable;
 
-function checkLog(bool $error, string $reason):array{
-    return ["error"=> $error,"reason"=> $reason];
-}
 
 final class Messages {
     public function __construct(private PDO $pdo) {}

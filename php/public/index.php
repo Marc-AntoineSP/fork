@@ -87,8 +87,25 @@ switch(true){
         http_response_code(303);
         header("Location: /conversations");
         exit;
-    case $method == "POST"&& $path == "/conversations/(?P<convId>\d+)/messages":
-        
+    case $method == "POST"&& preg_match("#^/conversations/(?P<conv_id>\d+)/messages$#", $path, $m):
+        $conv_id = (int)$m["conv_id"];
+        $message = $_POST["message"] ??"";
+        $user_id = (int)$_POST["user_id"];
+        if(empty($conv_id) || empty($user_id)) {
+            http_response_code(402);
+            echo json_encode(["error"=> "Invalid POST request"]);
+            exit;
+        }
+        $ok = $messages_db->addMessage($user_id, $conv_id, $message);
+        if($ok) {
+            http_response_code(202);
+            header("Location /conversations/$conv_id");
+            exit;
+        }else{
+            http_response_code(500);
+            echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
+            exit;
+        }
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

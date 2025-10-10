@@ -78,9 +78,17 @@ final class Messages {
         $getStmt->execute();
 
         return $getStmt->fetch(PDO::FETCH_ASSOC) ?: false;
-        
+
         }catch(\PDOException $e){
             return false;
         }
     }
+
+    // public function deleteMessage(int $msg_id):bool{
+    //     try{
+    //         $sql = 'DELETE ';
+    //     }catch(\PDOException $e){
+    //         return false;
+    //     }
+    // }
 }

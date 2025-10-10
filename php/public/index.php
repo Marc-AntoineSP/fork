@@ -22,6 +22,18 @@ $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
 
 header('Content-Type:application/json');
 
+function httpOk(int $httpCode, string $payload): never{
+    http_response_code($httpCode);
+    if($httpCode === 204){exit;}
+    json_encode(['data'=> $payload]);
+    exit;
+}
+function httpFail(int $httpCode, string $error): never{
+    http_response_code($httpCode);
+    json_encode(['error'=> $error]);
+    exit;
+}
+
 switch(true){
     case $method == 'GET' && $path == '/users':
         $userlist = $users_db->getAll();
@@ -133,6 +145,7 @@ switch(true){
         if(!is_array($content)){
             http_response_code(400);
             echo json_encode(['error'=> 'Bad JSON']);
+            exit;
         }
         $messages_db->updateMessage($message_id, (string)$content['content']);
         http_response_code(200);

@@ -22,7 +22,7 @@ $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
 
 header('Content-Type:application/json');
 
-function httpOk(int $httpCode, array $payload): never{
+function httpOk(int $httpCode, ?array $payload = []): never{
     http_response_code($httpCode);
     if($httpCode === 204){exit;}
     echo json_encode(['data'=> $payload]);
@@ -79,19 +79,14 @@ switch(true){
         $username = trim($_POST["username"] ?? '');
         $password = trim($_POST["password"] ?? '');
         if(empty($username) || empty($password)) {
-            http_response_code(422);
-            echo json_encode(["error"=> "Veuillez renseigner les 2 champs svp"]);
-            exit;
+            httpFail(422, "Veuillez renseigner les 2 champs svp");
         }
         $errLog = $auth->login($username, $password);
         if($errLog['error']) {
-            http_response_code(401);
-            echo json_encode(['error'=> $errLog['reason']]);
-            exit;
+            httpFail(401, $errLog['reason']);
         }
-        http_response_code(303);
-        header("Location: /conversations");
-        exit;
+        httpOk(204);
+        
     case $method == "POST"&& preg_match("#^/conversations/(?P<conv_id>\d+)/messages$#", $path, $m):
         $conv_id = (int)$m["conv_id"];
         $message = $_POST["message"] ??"";

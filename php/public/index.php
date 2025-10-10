@@ -106,6 +106,21 @@ switch(true){
             echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
             exit;
         }
+    case $method == "POST"&& $path == '/conversations':
+        $main_user_id = (int)$_POST['user_id'] ?? "";
+        $recipient_id = (int)$_POST['recipient_id'] ?? "";
+        $name = (string)$_POST['name'] ?? "";
+        if(empty($recipient_id) || empty($name) || empty($main_user_id)){http_response_code(400); json_encode(["error"=>"Invalid POST request"]); exit;}
+        $ok = $conversations_db->addConversation($main_user_id, $recipient_id, $name);
+        if(!$ok){
+            http_response_code(500);
+            echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
+            exit;
+        }
+        http_response_code(201);
+        header('Location http://127.0.0.1:8000/conversations');
+        exit;
+
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

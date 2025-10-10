@@ -104,40 +104,30 @@ switch(true){
         $main_user_id = (int)$_POST['user_id'] ?? "";
         $recipient_id = (int)$_POST['recipient_id'] ?? "";
         $name = (string)$_POST['name'] ?? "";
-        if(empty($recipient_id) || empty($name) || empty($main_user_id)){http_response_code(400); json_encode(["error"=>"Invalid POST request"]); exit;}
-        $ok = $conversations_db->addConversation($main_user_id, $recipient_id, $name);
-        if(!$ok){
-            http_response_code(500);
-            echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
-            exit;
+        if(empty($recipient_id) || empty($name) || empty($main_user_id)){httpFail(400, "Invalid POST request");}
+        $res = $conversations_db->addConversation($main_user_id, $recipient_id, $name);
+        if(!$res){
+            httpFail(500, "Oops, la DB a pas aimé");
         }
-        http_response_code(201);
-        header('Location http://127.0.0.1:8000/conversations');
-        exit;
+        httpOk(201, $res);
+
     case $method == "PATCH" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
         $message_id = (int)$m["msg_id"];
         $body = file_get_contents('php://input');
         if($body === false || $body === ''){
-            http_response_code(400);
-            echo json_encode(['error'=> 'Empty request, did you mean to DELETE ?']);
-            exit;
+            httpFail(400, "Empty request, did you mean to DELETE ?");
         }
         try{
-        $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-        if(!is_array($content)){
-            http_response_code(400);
-            echo json_encode(['error'=> 'Bad JSON']);
-            exit;
-        }
-        $messages_db->updateMessage($message_id, (string)$content['content']);
-        http_response_code(200);
-        echo json_encode(['message'=> 'updated']);
-        exit;
+            $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            if(!is_array($content)){
+                httpFail(400, "Invalid JSON");
+            }
+            $res = $messages_db->updateMessage($message_id, (string)$content['content']);
+            httpOk(200, $res);
         }catch(JsonException $e){
-            http_response_code(400);
-            echo json_encode(['error' => 'Bad JSON']);
-            exit;
+            httpFail(400, 'Bad JSON');
         }
+        
     case $method == "PATCH" && preg_match("#^/conversations/(?P<conv_id>\d+)$#", $path, $m):
         $conv_id = (int)$m["conv_id"];
         $body = file_get_contents("php://input");

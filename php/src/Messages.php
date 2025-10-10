@@ -63,14 +63,22 @@ final class Messages {
         }
     }
 
-    public function updateMessage(int $msg_id, string $content):bool{
+    public function updateMessage(int $msg_id, string $content):array|bool{
         try{
         $sql = 'UPDATE Messages SET content = :content WHERE id = :msg_id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':msg_id', $msg_id, PDO::PARAM_INT);
         $stmt->bindValue(':content', $content, PDO::PARAM_INT);
-        $ok = $stmt->execute();
-        return $ok && $stmt->rowCount() === 1;
+        $res = $stmt->execute();
+        if(!$res){return false;}
+
+        $getSql = 'SELECT * FROM Messages WHERE id = :msg_id';
+        $getStmt = $this->pdo->prepare($getSql);
+        $getStmt->bindValue(':msg_id', $msg_id, PDO::PARAM_INT);
+        $getStmt->execute();
+
+        return $getStmt->fetch(PDO::FETCH_ASSOC) ?: false;
+        
         }catch(\PDOException $e){
             return false;
         }

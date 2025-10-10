@@ -110,31 +110,24 @@ switch(true){
             httpFail(500, "Oops, la DB a pas aimé");
         }
         httpOk(201, $res);
-        
+
     case $method == "PATCH" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
         $message_id = (int)$m["msg_id"];
         $body = file_get_contents('php://input');
         if($body === false || $body === ''){
-            http_response_code(400);
-            echo json_encode(['error'=> 'Empty request, did you mean to DELETE ?']);
-            exit;
+            httpFail(400, "Empty request, did you mean to DELETE ?");
         }
         try{
-        $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-        if(!is_array($content)){
-            http_response_code(400);
-            echo json_encode(['error'=> 'Bad JSON']);
-            exit;
-        }
-        $messages_db->updateMessage($message_id, (string)$content['content']);
-        http_response_code(200);
-        echo json_encode(['message'=> 'updated']);
-        exit;
+            $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            if(!is_array($content)){
+                httpFail(400, "Invalid JSON");
+            }
+            $res = $messages_db->updateMessage($message_id, (string)$content['content']);
+            httpOk(200, $res);
         }catch(JsonException $e){
-            http_response_code(400);
-            echo json_encode(['error' => 'Bad JSON']);
-            exit;
+            httpFail(400, 'Bad JSON');
         }
+        
     case $method == "PATCH" && preg_match("#^/conversations/(?P<conv_id>\d+)$#", $path, $m):
         $conv_id = (int)$m["conv_id"];
         $body = file_get_contents("php://input");

@@ -22,10 +22,10 @@ $path = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/', '/');
 
 header('Content-Type:application/json');
 
-function httpOk(int $httpCode, string $payload): never{
+function httpOk(int $httpCode, array $payload): never{
     http_response_code($httpCode);
     if($httpCode === 204){exit;}
-    json_encode(['data'=> $payload]);
+    echo json_encode(['data'=> $payload]);
     exit;
 }
 function httpFail(int $httpCode, string $error): never{
@@ -37,8 +37,7 @@ function httpFail(int $httpCode, string $error): never{
 switch(true){
     case $method == 'GET' && $path == '/users':
         $userlist = $users_db->getAll();
-        echo json_encode(['data'=> $userlist]);
-        exit;
+        httpOk(200, $userlist);
     case $method == 'GET' && preg_match('#^/users/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $user = $users_db->getUserById($id);

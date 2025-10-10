@@ -32,13 +32,24 @@ final class Conversations {
         return $data;
     }
 
-    public function addConversation(int $main_user_id, int $recipient_id, string $name):bool{
-        $sql = 'INSERT INTO Conversations (main_user_id, recipient_id, name) VALUES (:main_user_id, :recipient_id, :name)';
+    public function addConversation(int $main_user_id, int $recipient_id, string $name):array|bool{
+        try{$sql = 'INSERT INTO Conversations (main_user_id, recipient_id, name) VALUES (:main_user_id, :recipient_id, :name)';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':main_user_id', $main_user_id, PDO::PARAM_INT);
         $stmt->bindValue(':recipient_id', $recipient_id, PDO::PARAM_INT);
         $stmt->bindValue(':name', $name, PDO::PARAM_STR);
-        return $stmt->execute();
+        $res = $stmt->execute();
+        if(!$res){return false;}
+
+        $id = $this->pdo->lastInsertId();
+        if($id<=0){return false;}
+
+        $getSql = 'SELECT * FROM Conversations WHERE id = :id';
+        $getStmt = $this->pdo->prepare($getSql);
+        $getStmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $getStmt->execute();
+        
+        return $getStmt->fetch(PDO::FETCH_ASSOC);}catch(\PDOException $e){return false;}
     }
 
     public function updateConversation(int $conv_id, string $name):array|bool{

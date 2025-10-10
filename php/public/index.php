@@ -104,16 +104,13 @@ switch(true){
         $main_user_id = (int)$_POST['user_id'] ?? "";
         $recipient_id = (int)$_POST['recipient_id'] ?? "";
         $name = (string)$_POST['name'] ?? "";
-        if(empty($recipient_id) || empty($name) || empty($main_user_id)){http_response_code(400); json_encode(["error"=>"Invalid POST request"]); exit;}
-        $ok = $conversations_db->addConversation($main_user_id, $recipient_id, $name);
-        if(!$ok){
-            http_response_code(500);
-            echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
-            exit;
+        if(empty($recipient_id) || empty($name) || empty($main_user_id)){httpFail(400, "Invalid POST request");}
+        $res = $conversations_db->addConversation($main_user_id, $recipient_id, $name);
+        if(!$res){
+            httpFail(500, "Oops, la DB a pas aimé");
         }
-        http_response_code(201);
-        header('Location http://127.0.0.1:8000/conversations');
-        exit;
+        httpOk(201, $res);
+        
     case $method == "PATCH" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
         $message_id = (int)$m["msg_id"];
         $body = file_get_contents('php://input');

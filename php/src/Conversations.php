@@ -40,4 +40,20 @@ final class Conversations {
         $stmt->bindValue(':name', $name, PDO::PARAM_STR);
         return $stmt->execute();
     }
+
+    public function updateConversation(int $conv_id, string $name):array|bool{
+        try{$sql = 'UPDATE Conversations SET name = :name WHERE id = :conv_id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $res = $stmt->execute();
+        if(!$res){return false;}
+
+        $getSql = 'SELECT id, name FROM Conversations WHERE id = :conv_id';
+        $getStmt = $this->pdo->prepare($getSql);
+        $getStmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
+        $getStmt->execute();
+
+        return $getStmt->fetch(PDO::FETCH_ASSOC);}catch(\PDOException $e){return false;}
+    }
 }

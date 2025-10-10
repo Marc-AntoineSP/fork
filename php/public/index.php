@@ -138,6 +138,24 @@ switch(true){
             echo json_encode(['error' => 'Bad JSON']);
             exit;
         }
+    case $method == "PATCH" && preg_match("#^/conversations/(?P<conv_id>\d+)$#", $path, $m):
+        $conv_id = (int)$m["conv_id"];
+        $body = file_get_contents("php://input");
+        if($body === false || $body === ""){
+            httpFail(400, 'Empty request, did you mean to DELETE ?');
+        }
+        try {
+            $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+            if(!is_array($content)){
+                httpFail(400, 'Bad JSON');
+            }
+            $res = $conversations_db->updateConversation($conv_id, (string)$content['name']);
+            if(!$res){httpFail(500, 'DB UPDATE error');}
+            httpOk(200, $res);
+        }catch(JsonException $e){
+            httpFail(400, $e->getMessage());
+        }
+
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

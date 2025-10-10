@@ -26,7 +26,7 @@ final class Users {
      * @param int $id
      * @return array
      */
-    public function getUserById(int $id):array{
+    public function getUserById(int $id):array|bool{
         $sql = 'SELECT id, username, hash_password FROM Users WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);

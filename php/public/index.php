@@ -30,7 +30,7 @@ function httpOk(int $httpCode, array $payload): never{
 }
 function httpFail(int $httpCode, string $error): never{
     http_response_code($httpCode);
-    json_encode(['error'=> $error]);
+    echo json_encode(['error'=> $error]);
     exit;
 }
 
@@ -38,16 +38,15 @@ switch(true){
     case $method == 'GET' && $path == '/users':
         $userlist = $users_db->getAll();
         httpOk(200, $userlist);
+
     case $method == 'GET' && preg_match('#^/users/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $user = $users_db->getUserById($id);
         if(!$user) {
-            http_response_code(404);
-            echo json_encode(['error'=> "User $id not found"]);
-            exit;
+            httpFail(404, "User $id not found");
         }
-        echo json_encode(['data'=> $user]);
-        exit;
+        httpOk(200, $user);
+        
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
         echo json_encode(['data'=> $conversations]);

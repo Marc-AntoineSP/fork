@@ -33,17 +33,32 @@ final class Messages {
         return $messages;
     }
 
-    public function addMessage(int $user_id, int $conv_id, string $message): bool {
+    /**
+     * Summary of addMessage
+     * @param int $user_id
+     * @param int $conv_id
+     * @param string $message
+     * @return array|null
+     */
+    public function addMessage(int $user_id, int $conv_id, string $message): ?array {
         try{
-        $sql = 'INSERT INTO Messages (sender_id, conversation_id, content) VALUES (:user_id, :conv_id, :message)';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
-        $stmt->bindValue(':message', $message, PDO::PARAM_STR);
-        $ok = $stmt->execute();
-        return $ok && $stmt->rowCount() === 1;
+            $insertSql = 'INSERT INTO Messages (sender_id, conversation_id, content) VALUES (:user_id, :conv_id, :message)';
+            $stmt = $this->pdo->prepare($insertSql);
+            $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
+            $stmt->bindValue(':message', $message, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $id = (int)$this->pdo->lastInsertId();
+            if($id <= 0){return null;}
+
+            $getSql = 'SELECT id, sender_id, conversation_id, content, created_at FROM Messages WHERE id = :id';
+            $getSql = $this->pdo->prepare($getSql);
+            $getSql->bindValue(':id', $id, PDO::PARAM_INT);
+            $getSql->execute();
+            return $getSql->fetch(PDO::FETCH_ASSOC) ?: null;
         }catch(\PDOException $e){
-            return false;
+            return null;
         }
     }
 

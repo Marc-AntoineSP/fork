@@ -10,7 +10,7 @@ use PDO;
 final class Messages {
     public function __construct(private PDO $pdo) {}
 
-    public function getMessageById(int $id): array {
+    public function getMessageById(int $id): array|bool {
         $sql = "SELECT * FROM Messages WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(":id", $id, PDO::PARAM_INT);

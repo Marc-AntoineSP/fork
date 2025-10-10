@@ -71,11 +71,10 @@ switch(true){
         $id = (int)$m["id"];
         $message = $messages_db->getMessageById($id);
         if(!$message) {
-            http_response_code(404);
-            echo json_encode(["error"=> "Message $id doesn't exist"]);
+            httpFail(404, "Message $id doesn't exist");
         }
-        echo json_encode(["data"=> $message]);
-        exit;
+        httpOk(200, $message);
+
     case $method == "POST"&& $path == "/auth":
         $username = trim($_POST["username"] ?? '');
         $password = trim($_POST["password"] ?? '');

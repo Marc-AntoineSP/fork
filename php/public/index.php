@@ -120,8 +120,29 @@ switch(true){
         http_response_code(201);
         header('Location http://127.0.0.1:8000/conversations');
         exit;
-    case $method == "UPDATE" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
+    case $method == "PATCH" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
         $message_id = (int)$m["msg_id"];
+        $body = file_get_contents('php://input');
+        if($body === false || $body === ''){
+            http_response_code(400);
+            echo json_encode(['error'=> 'Empty request, did you mean to DELETE ?']);
+            exit;
+        }
+        try{
+        $content = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        if(!is_array($content)){
+            http_response_code(400);
+            echo json_encode(['error'=> 'Bad JSON']);
+        }
+        $messages_db->updateMessage($message_id, (string)$content['content']);
+        http_response_code(200);
+        echo json_encode(['message'=> 'updated']);
+        exit;
+        }catch(JsonException $e){
+            http_response_code(400);
+            echo json_encode(['error' => 'Bad JSON']);
+            exit;
+        }
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

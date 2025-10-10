@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Php\Src;
 
 use PDO;
+use Throwable;
+
+function checkLog(bool $error, string $reason):array{
+    return ["error"=> $error,"reason"=> $reason];
+}
 
 final class Messages {
     public function __construct(private PDO $pdo) {}
@@ -30,5 +35,19 @@ final class Messages {
         $stmt->execute();
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $messages;
+    }
+
+    public function addMessage(int $user_id, int $conv_id, string $message): bool {
+        try{
+        $sql = 'INSERT INTO Messages (sender_id, conversation_id, content) VALUES (:user_id, :conv_id, :message)';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
+        $stmt->bindValue(':message', $message, PDO::PARAM_STR);
+        $ok = $stmt->execute();
+        return $ok && $stmt->rowCount() === 1;
+        }catch(\PDOException $e){
+            return false;
+        }
     }
 }

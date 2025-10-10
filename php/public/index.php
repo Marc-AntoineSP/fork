@@ -87,7 +87,8 @@ switch(true){
         http_response_code(303);
         header("Location: /conversations");
         exit;
-
+    case $method == "POST"&& $path == "/conversations/(?P<convId>\d+)/messages":
+        
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

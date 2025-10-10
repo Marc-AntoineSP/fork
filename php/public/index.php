@@ -35,10 +35,12 @@ function httpFail(int $httpCode, string $error): never{
 }
 
 switch(true){
+    // ON RECUPERE LES USERS DE LA DB
     case $method == 'GET' && $path == '/users':
         $userlist = $users_db->getAll();
         httpOk(200, $userlist);
-
+    
+    // ON RECUPERE UN USER SPECIFIQUE AVEC SON ID
     case $method == 'GET' && preg_match('#^/users/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $user = $users_db->getUserById($id);
@@ -47,10 +49,12 @@ switch(true){
         }
         httpOk(200, $user);
 
+    // ON RECUPERE TOUTES LES CONVERSATIONS -si conversations-
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
         httpOk(200, $conversations);
 
+    // ON RECUPERE UNE CONVERSATION AVEC SON ID -si conversation-
     case $method == 'GET'&& preg_match('#^/conversations/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $conversation = $conversations_db->getConversationById($id);
@@ -58,7 +62,8 @@ switch(true){
             httpFail(404, "Conversation $id doesn't exist");
         }
         httpOk(200, $conversation);
-
+    
+    // ON RECUPERE LES MESSAGES D'UNE CONVERSATION -si conversation-
     case $method == 'GET'&& preg_match('#^/conversations/(?P<convId>\d+)/messages$#', $path, $m):
         $convId = (int)$m['convId'];
         $messages = $messages_db->getMessageByConversationId($convId);
@@ -66,7 +71,8 @@ switch(true){
             httpFail(404, "Conversation $convId doesn't exist");
         }
         httpOk(200, $messages);
-
+    
+    // ON RECUPERE UN MESSAGE PAR SON ID
     case $method == "GET"&& preg_match("#^/messages/(?P<id>\d+)#", $path, $m):
         $id = (int)$m["id"];
         $message = $messages_db->getMessageById($id);
@@ -74,7 +80,8 @@ switch(true){
             httpFail(404, "Message $id doesn't exist");
         }
         httpOk(200, $message);
-
+    
+    // ON FAIT LA VALIDATION MDP
     case $method == "POST"&& $path == "/auth":
         $username = trim($_POST["username"] ?? '');
         $password = trim($_POST["password"] ?? '');
@@ -87,6 +94,7 @@ switch(true){
         }
         httpOk(204);
 
+    // ON POSTE UN MESSAGE DANS UNE CONVERSATION AVEC CONVID -si conversation-
     case $method == "POST"&& preg_match("#^/conversations/(?P<conv_id>\d+)/messages$#", $path, $m):
         $conv_id = (int)$m["conv_id"];
         $message = $_POST["message"] ??"";
@@ -100,6 +108,7 @@ switch(true){
         }
         httpOk(201, $res);
         
+    // ON CREE UNE CONVERSATION -si conversation-
     case $method == "POST"&& $path == '/conversations':
         $main_user_id = (int)$_POST['user_id'] ?? "";
         $recipient_id = (int)$_POST['recipient_id'] ?? "";
@@ -111,6 +120,7 @@ switch(true){
         }
         httpOk(201, $res);
 
+    // ON UPDATE UN MESSAGE AVEC SON ID
     case $method == "PATCH" && preg_match("#^/messages/(?P<msg_id>\d+)$#", $path, $m):
         $message_id = (int)$m["msg_id"];
         $body = file_get_contents('php://input');
@@ -128,6 +138,7 @@ switch(true){
             httpFail(400, 'Bad JSON');
         }
         
+    // ON UPDATE UNE CONVERSATION AVEC SON ID -si conversation-
     case $method == "PATCH" && preg_match("#^/conversations/(?P<conv_id>\d+)$#", $path, $m):
         $conv_id = (int)$m["conv_id"];
         $body = file_get_contents("php://input");

@@ -94,14 +94,12 @@ switch(true){
         if(empty($conv_id) || empty($user_id)) {
             httpFail(402, "Invalid POST request");
         }
-        $ok = $messages_db->addMessage($user_id, $conv_id, $message);
-        if($ok) {
-            httpOk(201, ["resource created"]);
-        }else{
-            http_response_code(500);
-            echo json_encode(["error"=> "Oops, la DB a pas aimé"]);
-            exit;
+        $res = $messages_db->addMessage($user_id, $conv_id, $message);
+        if($res) {
+            httpOk(201, [$ok]);
         }
+        httpFail(500, "Insert failed");
+        
     case $method == "POST"&& $path == '/conversations':
         $main_user_id = (int)$_POST['user_id'] ?? "";
         $recipient_id = (int)$_POST['recipient_id'] ?? "";

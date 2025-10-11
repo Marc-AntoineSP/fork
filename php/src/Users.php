@@ -50,4 +50,28 @@ final class Users {
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();}catch(\PDOException $e){return false;}
     }
+
+    public function addUser(string $user, string $h_password):array{
+        try{
+            $sql = 'INSERT INTO Users (username, hash_password) VALUES (:user, :h_password)';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':user', $user, PDO::PARAM_STR);
+            $stmt->bindValue(':h_password', $h_password, PDO::PARAM_STR);
+            $stmt->execute();
+
+            if($stmt->rowCount() === 0){
+                return Utils::dbReturn(true, 'No INSERT done.');
+            }
+            
+            $id = $this->pdo->lastInsertId();
+            $getSql = 'SELECT * FROM Users WHERE id = :id';
+            $stmt = $this->pdo->prepare($getSql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return Utils::dbReturn(false, $stmt->fetch(PDO::FETCH_ASSOC));
+        }catch(\PDOException $e){
+            return Utils::dbReturn(true, $e->getMessage());
+        }
+    }
 }

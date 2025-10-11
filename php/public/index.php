@@ -64,7 +64,7 @@ switch(true){
     // ON RECUPERE TOUTES LES CONVERSATIONS -si conversations-
     case $method == 'GET' && $path == '/conversations':
         $conversations = $conversations_db->getAll();
-        httpOk(200, $conversations);
+        httpOk(200, $conversations['data']);
 
     // ON RECUPERE UNE CONVERSATION AVEC SON ID -si conversation-
     case $method == 'GET'&& preg_match('#^/conversations/(?P<id>\d+)$#', $path, $m):
@@ -193,6 +193,11 @@ switch(true){
         $res = $conversations_db->deleteConversation($conv_id);
         if($res['error']){httpFail(404,$res['reason']);}
         httpOk(204);
+
+    case $method == 'POST' && $path == '/users':
+        $res = $users_db->addUser($_POST['username'], $_POST['password']);
+        if($res['error']){httpFail(400,$res['data']);}
+        httpOk(201, $res['data']);
 
     default:
         http_response_code(404);

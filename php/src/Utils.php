@@ -6,8 +6,7 @@ namespace Php\Src;
 
 
 final class Utils {
-    public static function dbReturn(bool $error, ?string $data):array {
-        if($error){return ["error"=> $error,"reason"=> $data];}
-        return ["error"=> $error,"data"=> $data ?? ""];
-    }
+    public static function dbReturn(bool $error, mixed $data): array {
+    return ['error' => $error, 'data' => $data];
+}
 }

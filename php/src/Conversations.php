@@ -15,7 +15,7 @@ final class Conversations {
      */
     public function getAll():array {
         $sql = 'SELECT id, name FROM Conversations';
-        return $this->pdo->query($sql)->fetchAll();
+        return Utils::dbReturn(false, $this->pdo->query($sql)->fetchAll());
     }
 
     /**

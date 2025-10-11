@@ -175,6 +175,15 @@ switch(true){
         if(!$res){httpFail(400, 'DB DELETE error');}
         httpOk(204);
 
+    case $method == 'DELETE'&& preg_match('#^/messages/(?P<msg_id>\d+)/$#', $path, $m):
+        $msg_id = (int)$m['msg_id'];
+        $res = $messages_db->deleteMessageById($msg_id);
+        if(!$res){httpFail(400, 'DB DELETE failed');}
+        httpOk(204);
+    
+    case $method == 'GET' && $path == '/messages':
+        httpOk(200,$messages_db->getAllMessages());
+    
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

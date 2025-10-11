@@ -98,11 +98,27 @@ final class Messages {
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
-    // public function deleteMessage(int $msg_id):bool{
-    //     try{
-    //         $sql = 'DELETE ';
-    //     }catch(\PDOException $e){
-    //         return false;
-    //     }
-    // }
+    public function deleteMessageById(int $msg_id):bool{
+        try{
+            $sql = 'DELETE FROM Messages WHERE id = :msg_id';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':msg_id', $msg_id, PDO::PARAM_INT);
+            $res = $stmt->execute();
+            if(!$res){return false;}
+            return true;
+        }catch(\PDOException $e){
+            return false;
+        }
+    }
+
+    public function getAllMessages():array{
+        try{
+            $sql = 'SELECT * FROM Messages';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }catch(\PDOException $e){
+            return ['Error :3'];
+        }
+    }
 }

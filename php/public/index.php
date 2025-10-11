@@ -191,7 +191,7 @@ switch(true){
     case $method == 'DELETE' && preg_match('#^/conversations/(?P<conv_id>\d+)$#', $path, $m):
         $conv_id = (int)$m['conv_id'];
         $res = $conversations_db->deleteConversation($conv_id);
-        if($res['error']){httpFail(400,$res['error']);}
+        if($res['error']){httpFail(404,$res['reason']);}
         httpOk(204);
 
     default:

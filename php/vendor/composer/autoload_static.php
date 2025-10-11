@@ -22,11 +22,6 @@ class ComposerStaticInita497abe5cf4fe2064c004b189de8c0e7
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Php\\Src\\Authentification' => __DIR__ . '/../..' . '/src/Authentification.php',
-        'Php\\Src\\Connection' => __DIR__ . '/../..' . '/src/Connection.php',
-        'Php\\Src\\Conversations' => __DIR__ . '/../..' . '/src/Conversations.php',
-        'Php\\Src\\Messages' => __DIR__ . '/../..' . '/src/Messages.php',
-        'Php\\Src\\Users' => __DIR__ . '/../..' . '/src/Users.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

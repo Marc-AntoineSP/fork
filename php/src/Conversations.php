@@ -6,10 +6,6 @@ namespace Php\Src;
 
 use PDO;
 
-function dbReturn(string|bool $error, ?string $data):array {
-    return ["error"=> $error ?? "","data"=> $data ?? ""];
-}
-
 final class Conversations {
     public function __construct(private PDO $pdo) {}
 
@@ -77,11 +73,11 @@ final class Conversations {
             $sql = 'DELETE FROM Conversations WHERE id = :conv_id';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
-            $res = $stmt->execute();
-            if(!$res){return dbReturn(true, null);}
-            return dbReturn(false, null);
+            $stmt->execute();
+            if(!$stmt->rowCount()){return Utils::dbReturn(true, "Aucune row affectée. Mauvais parametre.");}
+            return Utils::dbReturn(false, null);
         }catch(\PDOException $e){
-            return dbReturn($e->getMessage(), null);
+            return Utils::dbReturn(true, $e->getMessage());
         }
     }
 }

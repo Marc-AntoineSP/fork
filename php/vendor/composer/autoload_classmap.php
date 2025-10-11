@@ -7,9 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'Php\\Src\\Authentification' => $baseDir . '/src/Authentification.php',
-    'Php\\Src\\Connection' => $baseDir . '/src/Connection.php',
-    'Php\\Src\\Conversations' => $baseDir . '/src/Conversations.php',
-    'Php\\Src\\Messages' => $baseDir . '/src/Messages.php',
-    'Php\\Src\\Users' => $baseDir . '/src/Users.php',
 );

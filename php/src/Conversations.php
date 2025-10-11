@@ -6,6 +6,10 @@ namespace Php\Src;
 
 use PDO;
 
+function dbReturn(string|bool $error, ?string $data):array {
+    return ["error"=> $error ?? "","data"=> $data ?? ""];
+}
+
 final class Conversations {
     public function __construct(private PDO $pdo) {}
 
@@ -66,5 +70,18 @@ final class Conversations {
         $getStmt->execute();
 
         return $getStmt->fetch(PDO::FETCH_ASSOC);}catch(\PDOException $e){return false;}
+    }
+
+    public function deleteConversation(int $conv_id):array{
+        try{
+            $sql = 'DELETE FROM Conversations WHERE id = :conv_id';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':conv_id', $conv_id, PDO::PARAM_INT);
+            $res = $stmt->execute();
+            if(!$res){return dbReturn(true, null);}
+            return dbReturn(false, null);
+        }catch(\PDOException $e){
+            return dbReturn($e->getMessage(), null);
+        }
     }
 }

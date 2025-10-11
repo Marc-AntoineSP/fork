@@ -169,21 +169,31 @@ switch(true){
             httpFail(400, $e->getMessage());
         }
     
+    // DELETE USERS BY ID
     case $method == "DELETE"&& preg_match('#^/users/(?P<user_id>\d+)$#', $path, $m):
         $user_id = (int)$m['user_id'];
         $res = $users_db->deleteUserById($user_id);
         if(!$res){httpFail(400, 'DB DELETE error');}
         httpOk(204);
 
+    // DELETE MESSAGES BY ID
     case $method == 'DELETE'&& preg_match('#^/messages/(?P<msg_id>\d+)/$#', $path, $m):
         $msg_id = (int)$m['msg_id'];
         $res = $messages_db->deleteMessageById($msg_id);
         if(!$res){httpFail(400, 'DB DELETE failed');}
         httpOk(204);
     
+    // GET ALL MESSAGES
     case $method == 'GET' && $path == '/messages':
         httpOk(200,$messages_db->getAllMessages());
     
+    // DELETE CONVERSATION BY ID
+    case $method == 'DELETE' && preg_match('#^/conversations/(?P<conv_id>\d+)$#', $path, $m):
+        $conv_id = (int)$m['conv_id'];
+        $res = $conversations_db->deleteConversation($conv_id);
+        if($res['error']){httpFail(400,$res['error']);}
+        httpOk(204);
+
     default:
         http_response_code(404);
         echo json_encode(['error'=> "URI Doesn't exist"]);

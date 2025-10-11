@@ -46,10 +46,10 @@ switch(true){
     case $method == 'GET' && preg_match('#^/users/(?P<id>\d+)$#', $path, $m):
         $id = (int)$m['id'];
         $user = $users_db->getUserById($id);
-        if(!$user) {
+        if($user['error']) {
             httpFail(404, "User $id not found");
         }
-        httpOk(200, $user);
+        httpOk(200, $user['data ']);
     
     // ON RECUPERE TOUT LES MESSAGES D UN USER SPECIFIQUE VIA SON ID
     case $method == "GET"&& preg_match("#^/users/(?P<recipient_id>\d+)/messages$#", $path, $m):{

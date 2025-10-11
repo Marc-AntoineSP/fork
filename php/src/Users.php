@@ -26,13 +26,14 @@ final class Users {
      * @param int $id
      * @return array
      */
-    public function getUserById(int $id):array|bool{
+    public function getUserById(int $id):array{
         $sql = 'SELECT id, username, hash_password FROM Users WHERE id = :id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $user = $stmt->fetch();
-        return $user;
+        if(!$user){return Utils::dbReturn(true, 'Wrong id');}
+        return Utils::dbReturn(false, $user);
     }
 
     public function getUserByUsername(string $username):array|bool{
@@ -41,7 +42,8 @@ final class Users {
         $stmt->bindValue(':username', $username, PDO::PARAM_STR);
         $stmt->execute();
         $user = $stmt->fetch();
-        return $user;
+        if(!$user){return Utils::dbReturn(true, 'Wrong id');}
+        return Utils::dbReturn(false, $user);
     }
 
     public function deleteUserById(int $id):bool{

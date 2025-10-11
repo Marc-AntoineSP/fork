@@ -43,4 +43,11 @@ final class Users {
         $user = $stmt->fetch();
         return $user;
     }
+
+    public function deleteUserById(int $id):bool{
+        try{$sql = 'DELETE FROM Users WHERE id = :id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        return $stmt->execute();}catch(\PDOException $e){return false;}
+    }
 }

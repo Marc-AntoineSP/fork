@@ -168,6 +168,12 @@ switch(true){
         }catch(JsonException $e){
             httpFail(400, $e->getMessage());
         }
+    
+    case $method == "DELETE"&& preg_match('#^/users/(?P<user_id>\d+)$#', $path, $m):
+        $user_id = (int)$m['user_id'];
+        $res = $users_db->deleteUserById($user_id);
+        if(!$res){httpFail(400, 'DB DELETE error');}
+        httpOk(204);
 
     default:
         http_response_code(404);

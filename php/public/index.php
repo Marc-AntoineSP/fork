@@ -93,7 +93,7 @@ switch(true){
         }
         httpOk(200, $message);
     
-    // ON FAIT LA VALIDATION MDP
+    // ON FAIT LA VALIDATION MDP + TODO : CHANGER LE TYPE DE RETOUR
     case $method == "POST"&& $path == "/auth":
         $username = trim($_POST["username"] ?? '');
         $password = trim($_POST["password"] ?? '');
@@ -104,7 +104,7 @@ switch(true){
         if($errLog['error']) {
             httpFail(401, $errLog['reason']);
         }
-        httpOk(204);
+        httpOk(200, $errLog['data']);
 
     // ON POSTE UN MESSAGE DANS UNE CONVERSATION AVEC CONVID -si conversation-
     case $method == "POST"&& preg_match("#^/conversations/(?P<conv_id>\d+)/messages$#", $path, $m):
@@ -195,7 +195,7 @@ switch(true){
         httpOk(204);
 
     case $method == 'POST' && $path == '/users':
-        $res = $users_db->addUser($_POST['username'], $_POST['password']);
+        $res = $auth->createUser($_POST['username'], $_POST['password']);
         if($res['error']){httpFail(400,$res['data']);}
         httpOk(201, $res['data']);
 

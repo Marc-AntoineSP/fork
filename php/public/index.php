@@ -49,7 +49,7 @@ switch(true){
         if($user['error']) {
             httpFail(404, "User $id not found");
         }
-        httpOk(200, $user['data ']);
+        httpOk(200, $user['data']);
     
     // ON RECUPERE TOUT LES MESSAGES D UN USER SPECIFIQUE VIA SON ID
     case $method == "GET"&& preg_match("#^/users/(?P<recipient_id>\d+)/messages$#", $path, $m):{

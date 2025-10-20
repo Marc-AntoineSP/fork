@@ -15,7 +15,7 @@ require __DIR__ ."/../vendor/autoload.php";
 $users_id = ['admin'=>1, 'user1'=>2,'user2'=> 3];
 
 $users_db = new Users(Connection::connect());
-$auth = new Authentification($users_db);    
+$auth = new Authentification();    
 $conversations_db = new Conversations(Connection::connect());
 $messages_db = new Messages(Connection::connect());
 

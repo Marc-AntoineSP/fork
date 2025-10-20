@@ -28,9 +28,11 @@ function normalizedReturn(bool $error, string $data):array{
 final class Authentification {
 
     private $tokendb;
+    private $users_db;
     
-    public function __construct(private Users $users_db){
+    public function __construct(){
         $this->tokendb = new Tokens(Connection::connect());
+        $this->users_db = new Users(Connection::connect());
     }
     
 
@@ -39,10 +41,19 @@ final class Authentification {
         if(!$user){
             return ['error'=>true,'reason'=>"Username doesn't exist"];
         }
+        if(!password_verify($password, hash: (string)$user['data']['hash_password'])){
+            return ['error'=>true, 'reason'=>"Invalid credentials"];
+        }
         $rt = $this->generationRT($user);
         $at = $this->generationAT($rt, $user);
         // DOIT RETOURNER 2 TOKENS.
         return Utils::dbReturn(false, $rt);
+    }
+
+    public function verifyPassword(string $username, string $password){
+        $user = $this->users_db->getUserByUsername($username);
+        $hpwd = $user['data']['hash_password'];
+        return password_verify($password, $hpwd);
     }
 
     public function createUser(string $username, string $password): array {

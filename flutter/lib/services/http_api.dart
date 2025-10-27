@@ -77,8 +77,25 @@ class HttpApi implements ChatApi {
 
   @override
   Future<List<Contact>> fetchContacts() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _contacts;
+    Response response = await dio.get(
+      'http://127.0.0.1:8000/users',
+      options: Options(validateStatus: (_) => true),
+    );
+    final data = response.data;
+    print(data['data']);
+    final List<Contact> contacts = List.from(data['data'])
+        .map(
+          (u) => Contact(
+            id: u['id'],
+            name: u['username'],
+            phone: u['phone'],
+            avatarUrl: u['avatar_url'],
+          ),
+        )
+        .toList();
+    print(contacts);
+
+    return contacts;
   }
 
   @override

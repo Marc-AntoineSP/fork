@@ -9,7 +9,7 @@ class ContactsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      appBar: AppBar(title: const Text('Contacts')),
       body: FutureBuilder<List<Contact>>(
         future: api.fetchContacts(),
         builder: (context, snap) {
@@ -22,16 +22,26 @@ class ContactsScreen extends StatelessWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                child: Text('CONTACT', style: TextStyle(
-                  fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: 2))),
+                child: Text(
+                  'CONTACT',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ),
               Expanded(
                 child: ListView.separated(
                   itemCount: contacts.length,
-                  separatorBuilder: (_, __) => Divider(color: Colors.white.withOpacity(.1), height: 1),
+                  separatorBuilder: (_, __) =>
+                      Divider(color: Colors.white.withOpacity(.1), height: 1),
                   itemBuilder: (_, i) {
                     final c = contacts[i];
                     return ListTile(
-                      leading: CircleAvatar(backgroundImage: NetworkImage(c.avatarUrl)),
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(c.avatarUrl),
+                      ),
                       title: Text(c.name),
                       subtitle: Text(c.phone),
                       onTap: () => Navigator.pop(context),

@@ -31,12 +31,19 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('CHATLINE',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: 2)),
+            const Text(
+              'CHATLINE',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 2,
+              ),
+            ),
             const SizedBox(height: 12),
             TextField(
               decoration: const InputDecoration(hintText: 'Search…'),
-              onChanged: (_) {}, // tu pourras brancher plus tard mon vaillant marc
+              onChanged:
+                  (_) {}, // tu pourras brancher plus tard mon vaillant marc
             ),
             const SizedBox(height: 16),
 
@@ -48,7 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'New chat',
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ContactsScreen(api: widget.api)),
+                    MaterialPageRoute(
+                      builder: (_) => ContactsScreen(api: widget.api),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -57,7 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'Contacts',
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ContactsScreen(api: widget.api)),
+                    MaterialPageRoute(
+                      builder: (_) => ContactsScreen(api: widget.api),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -66,15 +77,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: 'Profile',
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ProfileScreen(api: widget.api)),
+                    MaterialPageRoute(
+                      builder: (_) => ProfileScreen(api: widget.api),
+                    ),
                   ),
                 ),
               ],
             ),
 
             const SizedBox(height: 24),
-            Text('Recent conversations',
-                style: TextStyle(color: Colors.white.withOpacity(.8), fontWeight: FontWeight.w600)),
+            Text(
+              'Recent conversations',
+              style: TextStyle(
+                color: Colors.white.withOpacity(.8),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 8),
 
             Expanded(
@@ -90,20 +108,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   return ListView.separated(
                     itemCount: contacts.length,
-                    separatorBuilder: (_, __) =>
-                        Divider(color: Colors.white.withOpacity(.08), height: 1),
+                    separatorBuilder: (_, __) => Divider(
+                      color: Colors.white.withOpacity(.08),
+                      height: 1,
+                    ),
                     itemBuilder: (_, i) {
                       final c = contacts[i];
                       return ListTile(
-                        leading: CircleAvatar(backgroundImage: NetworkImage(c.avatarUrl)),
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(c.avatarUrl),
+                        ),
                         title: Text(c.name),
-                        subtitle: Text(c.phone, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(
+                          c.phone,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ChatScreen(api: widget.api, contact: c),
+                              builder: (_) =>
+                                  ChatScreen(api: widget.api, contact: c),
                             ),
                           );
                         },
@@ -124,7 +151,11 @@ class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _QuickAction({required this.icon, required this.label, required this.onTap});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +173,10 @@ class _QuickAction extends StatelessWidget {
             children: [
               Icon(icon),
               const SizedBox(height: 6),
-              Text(label, style: TextStyle(color: Colors.white.withOpacity(.9))),
+              Text(
+                label,
+                style: TextStyle(color: Colors.white.withOpacity(.9)),
+              ),
             ],
           ),
         ),

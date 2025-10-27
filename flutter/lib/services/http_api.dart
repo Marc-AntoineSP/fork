@@ -114,15 +114,13 @@ class HttpApi implements ChatApi {
       () => [
         Message(
           id: 'm1',
-          fromId: contactId,
-          toId: _me,
+          authorId: contactId,
           text: 'Hey! How’s it going?',
           sentAt: DateTime.now().subtract(const Duration(hours: 6)),
         ),
         Message(
           id: 'm2',
-          fromId: _me,
-          toId: contactId,
+          authorId: _me,
           text: 'tg le troubadour',
           sentAt: DateTime.now().subtract(
             const Duration(hours: 5, minutes: 58),
@@ -142,8 +140,7 @@ class HttpApi implements ChatApi {
     list.add(
       Message(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        fromId: _me,
-        toId: contactId,
+        authorId: _me,
         text: text,
         sentAt: DateTime.now(),
       ),

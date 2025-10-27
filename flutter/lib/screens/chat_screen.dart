@@ -24,7 +24,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _refresh() async {
     final fut = widget.api.fetchConversation(widget.contact.id);
-    setState(() { _messagesFut = fut; });
+    setState(() {
+      _messagesFut = fut;
+    });
     await fut;
   }
 
@@ -47,18 +49,28 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
                 final msgs = snap.data!;
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   itemCount: msgs.length,
                   itemBuilder: (_, i) {
                     final m = msgs[i];
-                    final isMe = m.fromId == 'me';
+                    final isMe = m.authorId == 'me';
                     return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: isMe ? const Color(0xFFE63946) : const Color(0xFF1A1A1A),
+                          color: isMe
+                              ? const Color(0xFFE63946)
+                              : const Color(0xFF1A1A1A),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(m.text),

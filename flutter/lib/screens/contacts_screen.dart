@@ -2,17 +2,39 @@ import 'package:flutter/material.dart';
 import '../services/api.dart';
 import '../models/contact.dart';
 
-class ContactsScreen extends StatelessWidget {
+class ContactsScreen extends StatefulWidget {
   final ChatApi api;
   const ContactsScreen({super.key, required this.api});
+
+  @override
+  State<ContactsScreen> createState() => _ContactsScreenState();
+}
+
+class _ContactsScreenState extends State<ContactsScreen> {
+  late Future<List<Contact>> _contactsFuture;
+  ChatApi get api => widget.api;
+  @override
+  void initState() {
+    super.initState();
+    _contactsFuture = api.fetchContacts();
+  }
+
+  _refresh() {
+    setState(() {
+      _contactsFuture = api.fetchContacts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Contacts')),
       body: FutureBuilder<List<Contact>>(
-        future: api.fetchContacts(),
+        future: _contactsFuture,
         builder: (context, snap) {
+          if (!snap.hasError) {
+            return Center(child: Text('Error: ${snap.error}'));
+          }
           if (!snap.hasData) {
             return const Center(child: CircularProgressIndicator());
           }

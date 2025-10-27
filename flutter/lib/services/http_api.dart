@@ -81,14 +81,22 @@ class HttpApi implements ChatApi {
       'http://127.0.0.1:8000/users',
       options: Options(validateStatus: (_) => true),
     );
+    if (response.statusCode != 200) {
+      final msg = (response.data is Map && response.data['error'] != null)
+          ? response.data['error'].toString()
+          : 'Status code: ${response.statusCode}';
+      throw Exception('Failed to load contacts: $msg');
+    }
     final data = response.data;
+    final list = (data['data'] as List);
+
     print(data['data']);
-    final List<Contact> contacts = List.from(data['data'])
+    final List<Contact> contacts = list
         .map(
           (u) => Contact(
-            id: u['id'],
+            id: u['id'].toString(),
             name: u['username'],
-            phone: u['phone'],
+            phone: u['phone'].toString(),
             avatarUrl: u['avatar_url'],
           ),
         )

@@ -1,3 +1,5 @@
+import 'package:flutter_application_1/models/conversation_preview.dart';
+
 import '../models/contact.dart';
 import '../models/message.dart';
 
@@ -6,4 +8,5 @@ abstract class ChatApi {
   Future<List<Contact>> fetchContacts();
   Future<List<Message>> fetchConversation(String contactId);
   Future<void> sendMessage(String contactId, String text);
+  Future<List<ConversationPreview>> fetchConversationPreviews();
 }

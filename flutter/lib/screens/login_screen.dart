@@ -14,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _userCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
-  final ChatApi _api = MockChatApi();
   final HttpApi _httpApi = HttpApi();
   bool _loading = false;
   String? _error;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/conversation_preview.dart';
 import '../services/api.dart';
 import '../models/contact.dart';
 import 'contacts_screen.dart';
@@ -13,12 +14,12 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  late Future<List<Contact>> _contactsFuture;
+  late Future<List<ConversationPreview>> _previewFuture;
 
   @override
   void initState() {
     super.initState();
-    _contactsFuture = widget.api.fetchContacts();
+    _previewFuture = widget.api.fetchConversationPreviews();
   }
 
   @override
@@ -40,43 +41,60 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Contact>>(
-        future: _contactsFuture,
+      body: FutureBuilder<List<ConversationPreview>>(
+        future: _previewFuture,
         builder: (context, snap) {
+          if (snap.hasError) {
+            return Center(child: Text('Error: ${snap.error}'));
+          }
           if (!snap.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final contacts = snap.data!;
+          final items = snap.data!;
+          if (items.isEmpty) {
+            return const Center(child: Text('No conversations yet.'));
+          }
+
           return ListView.separated(
-            itemCount: contacts.length,
+            itemCount: items.length,
             separatorBuilder: (_, __) =>
                 Divider(color: Colors.white.withOpacity(.1), height: 1),
             itemBuilder: (_, i) {
-              final c = contacts[i];
+              final preview = items[i];
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: NetworkImage(c.avatarUrl),
+                  backgroundImage: NetworkImage(preview.avatarUrl),
                 ),
                 title: Text(
-                  c.name,
+                  preview.name,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  'Hey! How’s it going?',
+                  preview.lastText,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: Text(
-                  '04:04 AM',
+                  toCorrectDate(preview.lastSentAt),
                   style: TextStyle(
                     color: Colors.white.withOpacity(.6),
                     fontSize: 12,
                   ),
                 ),
                 onTap: () {
+                  final p = Contact(
+                    id: preview.contactId,
+                    name: preview.name,
+                    phone: 'testPhone06',
+                    avatarUrl: preview.avatarUrl,
+                  );
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ChatScreen(api: widget.api, contact: c),
+                      builder: (_) => ChatScreen(
+                        api: widget.api,
+                        contact: p,
+                        conversationId: preview.conversationId,
+                      ),
                     ),
                   );
                 },
@@ -88,3 +106,6 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     );
   }
 }
+
+String toCorrectDate(DateTime dt) =>
+    '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter_application_1/models/conversation_preview.dart';
+
 import '../models/contact.dart';
 import '../models/message.dart';
 import 'api.dart';
@@ -10,61 +12,20 @@ import 'package:dio/dio.dart';
 //   Future<void> sendMessage(String contactId, String text);
 
 class HttpApi implements ChatApi {
-  final Dio dio = Dio();
+  final Dio dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:8000'));
   late String accessToken;
-  final _me = 'me';
-
-  final _contacts = <Contact>[
-    Contact(
-      id: 'amanda',
-      name: 'Amanda',
-      phone: '+33 6 00 00 00 01',
-      avatarUrl: 'https://i.pravatar.cc/150?img=1',
-    ),
-    Contact(
-      id: 'bruno',
-      name: 'Bruno',
-      phone: '+33 6 00 00 00 02',
-      avatarUrl: 'https://i.pravatar.cc/150?img=2',
-    ),
-    Contact(
-      id: 'coralie',
-      name: 'Coralie',
-      phone: '+33 6 00 00 00 03',
-      avatarUrl: 'https://i.pravatar.cc/150?img=3',
-    ),
-    Contact(
-      id: 'emeric',
-      name: 'Emeric',
-      phone: '+33 6 00 00 00 04',
-      avatarUrl: 'https://i.pravatar.cc/150?img=4',
-    ),
-    Contact(
-      id: 'eric',
-      name: 'Eric',
-      phone: '+33 6 00 00 00 05',
-      avatarUrl: 'https://i.pravatar.cc/150?img=5',
-    ),
-    Contact(
-      id: 'fouzila',
-      name: 'Fouzila',
-      phone: '+33 6 00 00 00 06',
-      avatarUrl: 'https://i.pravatar.cc/150?img=6',
-    ),
-    Contact(
-      id: 'zack',
-      name: 'Zack',
-      phone: '+33 6 00 00 00 07',
-      avatarUrl: 'https://i.pravatar.cc/150?img=7',
-    ),
-  ];
+  // final _me = 'me';
+  final _user_id = '1';
 
   final Map<String, List<Message>> _threads = {};
+
+  DateTime sqlDateParse(String raw) =>
+      DateTime.parse(raw.contains('T') ? raw : raw.replaceFirst(' ', 'T'));
 
   @override
   Future<bool> login(String username, String password) async {
     final response = await dio.post(
-      'http://127.0.0.1:8000/auth',
+      '/auth',
       data: {'username': username, 'password': password},
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
@@ -76,9 +37,41 @@ class HttpApi implements ChatApi {
   }
 
   @override
+  Future<List<ConversationPreview>> fetchConversationPreviews() async {
+    final convResponse = await dio.get(
+      '/users/$_user_id/conversations',
+      options: Options(validateStatus: (_) => true),
+    );
+    if (convResponse.statusCode != 200) {
+      throw Exception('Failed to load conversation previews');
+    }
+    final data = convResponse.data;
+    final list = (data['data'] as List);
+    final previews = list.map((preview) {
+      final otherId = preview['other_user_id'].toString();
+      final name = preview['other_username'];
+      final text = (preview['message_content'] ?? '').toString();
+      final sent = DateTime.parse((preview['message_sent_at']));
+      final otherAvatarUrl = preview['other_avatar_url'];
+      final convId = (preview['conversation_id'] ?? preview['id']).toString();
+
+      return ConversationPreview(
+        contactId: otherId,
+        name: name,
+        avatarUrl: otherAvatarUrl,
+        lastText: text,
+        lastSentAt: sent,
+        conversationId: convId,
+      );
+    }).toList();
+    previews.sort((a, b) => b.lastSentAt.compareTo(a.lastSentAt));
+    return previews;
+  }
+
+  @override
   Future<List<Contact>> fetchContacts() async {
     Response response = await dio.get(
-      'http://127.0.0.1:8000/users',
+      '/users',
       options: Options(validateStatus: (_) => true),
     );
     if (response.statusCode != 200) {
@@ -90,7 +83,7 @@ class HttpApi implements ChatApi {
     final data = response.data;
     final list = (data['data'] as List);
 
-    print(data['data']);
+    print("contact bruts : $data['data']");
     final List<Contact> contacts = list
         .map(
           (u) => Contact(
@@ -101,36 +94,40 @@ class HttpApi implements ChatApi {
           ),
         )
         .toList();
-    print(contacts);
 
     return contacts;
   }
 
   @override
-  Future<List<Message>> fetchConversation(String contactId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    _threads.putIfAbsent(
-      contactId,
-      () => [
-        Message(
-          id: 'm1',
-          authorId: contactId,
-          text: 'Hey! How’s it going?',
-          sentAt: DateTime.now().subtract(const Duration(hours: 6)),
-        ),
-        Message(
-          id: 'm2',
-          authorId: _me,
-          text: 'tg le troubadour',
-          sentAt: DateTime.now().subtract(
-            const Duration(hours: 5, minutes: 58),
-          ),
-        ),
-      ],
+  Future<List<Message>> fetchConversation(String convId) async {
+    final response = await dio.get(
+      '/conversations/$convId/messages',
+      options: Options(validateStatus: (_) => true),
     );
-    final list = _threads[contactId]!;
-    list.sort((a, b) => a.sentAt.compareTo(b.sentAt));
-    return list;
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      final list = (data['data'] as List);
+      print("conversation bruts : $list");
+
+      final List<Message> messages = list
+          .map(
+            (m) => Message(
+              id: m['id'].toString(),
+              authorId: m['sender_id'].toString() == this._user_id
+                  ? 'me'
+                  : m['sender_id'].toString(),
+              text: m['content'],
+              sentAt: DateTime.parse(m['sent_at']),
+            ),
+          )
+          .toList();
+
+      messages.sort((a, b) => a.sentAt.compareTo(b.sentAt));
+      return messages;
+    } else {
+      throw Exception('Failed to load conversation');
+    }
   }
 
   @override
@@ -140,7 +137,7 @@ class HttpApi implements ChatApi {
     list.add(
       Message(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        authorId: _me,
+        authorId: _user_id.toString(),
         text: text,
         sentAt: DateTime.now(),
       ),

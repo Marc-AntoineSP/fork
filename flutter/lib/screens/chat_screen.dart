@@ -6,7 +6,13 @@ import '../models/message.dart';
 class ChatScreen extends StatefulWidget {
   final ChatApi api;
   final Contact contact;
-  const ChatScreen({super.key, required this.api, required this.contact});
+  final String? conversationId;
+  const ChatScreen({
+    super.key,
+    required this.api,
+    required this.contact,
+    this.conversationId,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -19,11 +25,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _messagesFut = widget.api.fetchConversation(widget.contact.id);
+    final id = widget.conversationId ?? widget.contact.id;
+    _messagesFut = widget.api.fetchConversation(id);
   }
 
   Future<void> _refresh() async {
-    final fut = widget.api.fetchConversation(widget.contact.id);
+    final id = widget.conversationId ?? widget.contact.id;
+    final fut = widget.api.fetchConversation(id);
     setState(() {
       _messagesFut = fut;
     });

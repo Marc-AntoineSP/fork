@@ -163,13 +163,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: Text(
-                          getHourAndMinutes(p.lastSentAt),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(.6),
-                            fontSize: 12,
-                          ),
-                        ),
+                        trailing: (p.lastSentAt == null)
+                            ? const SizedBox.shrink()
+                            : Text(
+                                getHourAndMinutes(p.lastSentAt!),
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(.6),
+                                  fontSize: 12,
+                                ),
+                              ),
                         onTap: () {
                           final c = Contact(
                             id: p.contactId,

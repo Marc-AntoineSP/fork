@@ -104,17 +104,21 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  preview.lastText,
+                  preview.lastText.isEmpty
+                      ? 'Démarrer la conversation !'
+                      : preview.lastText,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: Text(
-                  getHourAndMinutes(preview.lastSentAt),
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(.6),
-                    fontSize: 12,
-                  ),
-                ),
+                trailing: (preview.lastSentAt == null)
+                    ? const SizedBox.shrink()
+                    : Text(
+                        getHourAndMinutes(preview.lastSentAt!),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(.6),
+                          fontSize: 12,
+                        ),
+                      ),
                 onTap: () {
                   final c = Contact(
                     id: preview.contactId,

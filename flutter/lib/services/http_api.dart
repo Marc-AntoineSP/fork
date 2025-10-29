@@ -58,10 +58,14 @@ class HttpApi implements ChatApi {
     final data = convResponse.data;
     final list = (data['data'] as List);
     final previews = list.map((preview) {
+      final sentCheckNull = preview['message_sent_at'];
+      final DateTime? sentSafe = (sentCheckNull != null)
+          ? sqlDateParse((preview['message_sent_at']))
+          : null;
       final otherId = preview['other_user_id'].toString();
       final name = preview['other_username'];
       final text = (preview['message_content'] ?? '').toString();
-      final sent = DateTime.parse((preview['message_sent_at']));
+      final sent = sentSafe;
       final otherAvatarUrl = preview['other_avatar_url'];
       final convId = (preview['conversation_id'] ?? preview['id']).toString();
 
@@ -74,7 +78,13 @@ class HttpApi implements ChatApi {
         conversationId: convId,
       );
     }).toList();
-    previews.sort((a, b) => b.lastSentAt.compareTo(a.lastSentAt));
+    previews.sort((a, b) {
+      final aa = a.lastSentAt, bb = b.lastSentAt;
+      if (aa == null && bb == null) return 0;
+      if (aa == null) return 1;
+      if (bb == null) return -1;
+      return bb.compareTo(aa);
+    });
     return previews;
   }
 
@@ -109,7 +119,7 @@ class HttpApi implements ChatApi {
   }
 
   @override
-  Future<List<Message>> fetchConversation(String convId) async {
+  Future<List<Message>?> fetchConversation(String convId) async {
     final response = await dio.get(
       '/conversations/$convId/messages',
       options: Options(validateStatus: (_) => true),
@@ -135,6 +145,9 @@ class HttpApi implements ChatApi {
 
       messages.sort((a, b) => a.sentAt.compareTo(b.sentAt));
       return messages;
+    }
+    if (response.statusCode == 404) {
+      return null;
     } else {
       throw Exception('Failed to load conversation');
     }

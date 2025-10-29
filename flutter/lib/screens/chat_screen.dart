@@ -48,6 +48,15 @@ class _ChatScreenState extends State<ChatScreen> {
     _reloadingEnCours = true;
     try {
       final data = await widget.api.fetchConversation(_convId);
+      if (data == null) {
+        _pollingTimer?.cancel();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Conversation supprimée')));
+        Navigator.of(context).pop();
+        return;
+      }
       if (!mounted) return;
 
       final newLastMessageId = data.isNotEmpty ? data.last.id : null;

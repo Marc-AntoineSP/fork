@@ -3,7 +3,7 @@ class ConversationPreview {
   final String name; // nom de l’autre participant
   final String avatarUrl; // avatar de l’autre participant
   final String lastText; // dernier message
-  final DateTime lastSentAt; // date/heure du dernier message
+  final DateTime? lastSentAt; // date/heure du dernier message
   final String conversationId;
 
   ConversationPreview({

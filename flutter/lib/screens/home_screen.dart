@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/conversation_preview.dart';
 import '../services/api.dart';
 import '../models/contact.dart';
 import 'contacts_screen.dart';
@@ -14,13 +17,47 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late Future<void> _prevSnapshot;
+  final List<ConversationPreview> _items = [];
+  Timer? _pollingTimer;
+  bool _reloadingEnCours = false;
+  Future<void> _loadNewSnapshot() async {
+    if (_reloadingEnCours) return;
+    _reloadingEnCours = true;
+    try {
+      final previews = await widget.api.fetchConversationPreviews();
+      if (!mounted) return;
+      setState(() {
+        _items.clear();
+        _items.addAll(previews);
+      });
+    } catch (e) {
+      print(e);
+    } finally {
+      _reloadingEnCours = false;
+    }
+  }
+
   late Future<List<Contact>> _contactsFut;
 
   @override
   void initState() {
     super.initState();
-    _contactsFut = widget.api.fetchContacts();
+    _prevSnapshot = _loadNewSnapshot();
+    _pollingTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _loadNewSnapshot(),
+    );
   }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  String getHourAndMinutes(DateTime date) =>
+      '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
@@ -96,41 +133,58 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
 
             Expanded(
-              child: FutureBuilder<List<Contact>>(
-                future: _contactsFut,
+              child: FutureBuilder<void>(
+                future: _prevSnapshot,
                 builder: (context, snap) {
-                  if (!snap.hasData) {
+                  if (snap.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  final contacts = snap.data!;
-                  if (contacts.isEmpty) {
-                    return const Center(child: Text('No contacts yet'));
+                  if (snap.hasError) {
+                    return Center(child: Text('Error: ${snap.error}'));
+                  }
+                  if (_items.isEmpty) {
+                    return const Center(child: Text('Pas de conversations'));
                   }
                   return ListView.separated(
-                    itemCount: contacts.length,
+                    itemCount: _items.length,
                     separatorBuilder: (_, __) => Divider(
                       color: Colors.white.withOpacity(.08),
                       height: 1,
                     ),
                     itemBuilder: (_, i) {
-                      final c = contacts[i];
+                      final p = _items[i];
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: NetworkImage(c.avatarUrl),
+                          backgroundImage: NetworkImage(p.avatarUrl),
                         ),
-                        title: Text(c.name),
+                        title: Text(p.name),
                         subtitle: Text(
-                          c.phone,
+                          p.lastText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: const Icon(Icons.chevron_right),
+                        trailing: Text(
+                          getHourAndMinutes(p.lastSentAt),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(.6),
+                            fontSize: 12,
+                          ),
+                        ),
                         onTap: () {
+                          final c = Contact(
+                            id: p.contactId,
+                            name: p.name,
+                            phone: '0600000000',
+                            avatarUrl: p.avatarUrl,
+                          );
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  ChatScreen(api: widget.api, contact: c),
+                              builder: (_) => ChatScreen(
+                                api: widget.api,
+                                contact: c,
+                                conversationId: p.conversationId,
+                              ),
                             ),
                           );
                         },

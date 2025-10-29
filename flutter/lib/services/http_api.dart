@@ -182,4 +182,15 @@ class HttpApi implements ChatApi {
     final list = _threads.putIfAbsent(contactId, () => []);
     list.add(messageCreated);
   }
+
+  @override
+  Future<void> deleteMessage(String messageId) async {
+    final response = await dio.delete(
+      '/messages/$messageId',
+      options: Options(validateStatus: (_) => true),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete message');
+    }
+  }
 }

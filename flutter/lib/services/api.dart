@@ -9,4 +9,5 @@ abstract class ChatApi {
   Future<List<Message>?> fetchConversation(String contactId);
   Future<void> sendMessage(String contactId, String text);
   Future<List<ConversationPreview>> fetchConversationPreviews();
+  Future<void> deleteMessage(String messageId);
 }

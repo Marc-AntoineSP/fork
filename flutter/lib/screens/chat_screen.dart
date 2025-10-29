@@ -109,7 +109,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       final text = _inputCtrl.text.trim();
                       if (text.isEmpty) return;
                       _inputCtrl.clear();
-                      await widget.api.sendMessage(widget.contact.id, text);
+
+                      final convId = widget.conversationId ?? widget.contact.id;
+                      await widget.api.sendMessage(convId, text);
                       await _refresh();
                     },
                   ),

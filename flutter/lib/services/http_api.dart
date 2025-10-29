@@ -16,8 +16,6 @@ class HttpApi implements ChatApi {
   late String? accessToken;
   late String? refreshToken;
   late String? userId;
-  // final _me = 'me';
-  final _user_id = '1';
 
   final Map<String, List<Message>> _threads = {};
 
@@ -144,15 +142,31 @@ class HttpApi implements ChatApi {
 
   @override
   Future<void> sendMessage(String contactId, String text) async {
-    await Future.delayed(const Duration(milliseconds: 150));
-    final list = _threads.putIfAbsent(contactId, () => []);
-    list.add(
-      Message(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        authorId: userId.toString(),
-        text: text,
-        sentAt: DateTime.now(),
+    if (userId == null) {
+      throw Exception('User pas logged');
+    }
+    final response = await dio.post(
+      '/conversations/$contactId/messages',
+      data: {'user_id': userId, 'message': text},
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (_) => true,
       ),
     );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to send message');
+    }
+    final newMessage = response.data['data'] as Map;
+    final messageCreated = Message(
+      id: newMessage['id'].toString(),
+      authorId: newMessage['sender_id'].toString() == userId
+          ? 'me'
+          : newMessage['sender_id'].toString(),
+      text: newMessage['content'],
+      sentAt: sqlDateParse((newMessage['sent_at']).toString()),
+    );
+    final list = _threads.putIfAbsent(contactId, () => []);
+    list.add(messageCreated);
   }
 }

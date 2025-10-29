@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/conversation_preview.dart';
 import '../services/api.dart';
@@ -14,13 +16,46 @@ class ConversationsScreen extends StatefulWidget {
 }
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
-  late Future<List<ConversationPreview>> _previewFuture;
+  late Future<void> _prevSnapshot;
+  final List<ConversationPreview> _items = [];
+  Timer? _pollingTimer;
+  bool _reloadingEnCours = false;
+
+  Future<void> _loadNewSnapshot() async {
+    if (_reloadingEnCours) return;
+    _reloadingEnCours = true;
+    try {
+      final previews = await widget.api.fetchConversationPreviews();
+      if (!mounted) return;
+      setState(() {
+        _items.clear();
+        _items.addAll(previews);
+      });
+    } catch (e) {
+      print(e);
+    } finally {
+      _reloadingEnCours = false;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _previewFuture = widget.api.fetchConversationPreviews();
+    _prevSnapshot = widget.api.fetchConversationPreviews();
+    _pollingTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _loadNewSnapshot(),
+    );
   }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  String getHourAndMinutes(DateTime date) =>
+      '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
@@ -41,26 +76,25 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<List<ConversationPreview>>(
-        future: _previewFuture,
+      body: FutureBuilder<void>(
+        future: _prevSnapshot,
         builder: (context, snap) {
-          if (snap.hasError) {
-            return Center(child: Text('Error: ${snap.error}'));
-          }
-          if (!snap.hasData) {
+          if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final items = snap.data!;
-          if (items.isEmpty) {
-            return const Center(child: Text('No conversations yet.'));
+          if (snap.hasError) {
+            return Center(child: Text('Erreur: ${snap.error}'));
+          }
+          if (_items.isEmpty) {
+            return const Center(child: Text('Aucune conversation'));
           }
 
           return ListView.separated(
-            itemCount: items.length,
+            itemCount: _items.length,
             separatorBuilder: (_, __) =>
                 Divider(color: Colors.white.withOpacity(.1), height: 1),
             itemBuilder: (_, i) {
-              final preview = items[i];
+              final preview = _items[i];
               return ListTile(
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(preview.avatarUrl),
@@ -75,14 +109,14 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: Text(
-                  toCorrectDate(preview.lastSentAt),
+                  getHourAndMinutes(preview.lastSentAt),
                   style: TextStyle(
                     color: Colors.white.withOpacity(.6),
                     fontSize: 12,
                   ),
                 ),
                 onTap: () {
-                  final p = Contact(
+                  final c = Contact(
                     id: preview.contactId,
                     name: preview.name,
                     phone: 'testPhone06',
@@ -92,7 +126,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     MaterialPageRoute(
                       builder: (_) => ChatScreen(
                         api: widget.api,
-                        contact: p,
+                        contact: c,
                         conversationId: preview.conversationId,
                       ),
                     ),

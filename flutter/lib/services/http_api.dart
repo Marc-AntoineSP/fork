@@ -128,7 +128,7 @@ class HttpApi implements ChatApi {
                   ? 'me'
                   : m['sender_id'].toString(),
               text: m['content'],
-              sentAt: DateTime.parse(m['sent_at']),
+              sentAt: sqlDateParse((m['sent_at']).toString()),
             ),
           )
           .toList();

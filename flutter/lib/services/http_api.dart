@@ -13,7 +13,9 @@ import 'package:dio/dio.dart';
 
 class HttpApi implements ChatApi {
   final Dio dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:8000'));
-  late String accessToken;
+  late String? accessToken;
+  late String? refreshToken;
+  late String? userId;
   // final _me = 'me';
   final _user_id = '1';
 
@@ -32,14 +34,24 @@ class HttpApi implements ChatApi {
         validateStatus: (_) => true,
       ),
     );
+    if (response.statusCode != 200) {
+      return false;
+    }
+    final data = response.data['data'] as Map;
+    accessToken = data['at'] as String?;
+    refreshToken = data['rt'] as String?;
+    userId = data['conf']?['sub']?.toString();
 
-    return response.statusCode == 200;
+    if (accessToken != null) {
+      dio.options.headers['Authorization'] = 'Bearer $accessToken';
+    }
+    return true;
   }
 
   @override
   Future<List<ConversationPreview>> fetchConversationPreviews() async {
     final convResponse = await dio.get(
-      '/users/$_user_id/conversations',
+      '/users/$userId/conversations',
       options: Options(validateStatus: (_) => true),
     );
     if (convResponse.statusCode != 200) {
@@ -114,7 +126,7 @@ class HttpApi implements ChatApi {
           .map(
             (m) => Message(
               id: m['id'].toString(),
-              authorId: m['sender_id'].toString() == this._user_id
+              authorId: m['sender_id'].toString() == userId
                   ? 'me'
                   : m['sender_id'].toString(),
               text: m['content'],
@@ -137,7 +149,7 @@ class HttpApi implements ChatApi {
     list.add(
       Message(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        authorId: _user_id.toString(),
+        authorId: userId.toString(),
         text: text,
         sentAt: DateTime.now(),
       ),

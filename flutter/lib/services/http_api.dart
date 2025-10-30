@@ -193,4 +193,47 @@ class HttpApi implements ChatApi {
       throw Exception('Failed to delete message');
     }
   }
+
+  @override
+  Future<int> ensureConversationWith(int contactId, {String? name}) async {
+    if (userId == null) {
+      throw Exception('User pas logged');
+    }
+
+    if (userId == contactId.toString()) {
+      throw Exception("Touche à ton cul qui croyait prendre");
+    }
+
+    final response = await dio.post(
+      '/conversations',
+      data: {
+        'user_id': userId,
+        'recipient_id': contactId.toString(),
+        'name': name ?? 'Conv entre $userId et $contactId',
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (_) => true,
+      ),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      //oui.
+      final raw = response.data;
+      if (raw is Map) {
+        final maybeInner = raw['data'];
+        final map = (maybeInner is Map) ? maybeInner : raw;
+        final any = map['conversation_id'] ?? map['id'];
+        //Forcage du type car jpp
+        final convId = any != null ? int.tryParse(any.toString()) : null;
+        if (convId != null) return convId;
+      }
+      throw Exception('Réponse invalide: ${response.data}');
+    }
+
+    final errMsg = (response.data is Map)
+        ? (response.data['error'] ?? response.data)
+        : response.statusMessage;
+    throw Exception('Failed ${errMsg ?? ""}');
+  }
 }

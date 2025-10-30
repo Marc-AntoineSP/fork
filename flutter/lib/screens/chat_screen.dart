@@ -98,6 +98,47 @@ class _ChatScreenState extends State<ChatScreen> {
   //   await fut;
   // }
 
+  Future<bool> _confirmDelete(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('SUPPRESSION DU MESSAGE'),
+            content: const Text('Voulez-vous vraiment supprimer ce message ?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Annuler'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Supprimer'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  Future<void> _deleteMessage(Message message) async {
+    try {
+      setState(() {
+        _items.removeWhere((m) => m.id == message.id);
+      });
+      await widget.api.deleteMessage(message.id);
+      await _fetchMessages();
+    } catch (e) {
+      print(e);
+      setState(() {
+        _items.add(message);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la suppression du message: $e'),
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

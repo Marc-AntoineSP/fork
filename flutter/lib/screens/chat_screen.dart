@@ -169,23 +169,44 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (_, i) {
                     final m = _items[i];
                     final isMe = m.authorId == 'me';
-                    return Align(
-                      alignment: isMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                    return Dismissible(
+                      key: ValueKey(m.id),
+                      direction: isMe
+                          ? DismissDirection.endToStart
+                          : DismissDirection.none,
+                      confirmDismiss: (dir) async {
+                        if (!isMe) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Touche à ton cul qui croyait prendre',
+                              ),
+                            ),
+                          );
+                          return false;
+                        }
+                        return _confirmDelete(context);
+                      },
+                      onDismissed: (_) => _deleteMessage(m),
+                      background: const SizedBox.shrink(),
+                      child: Align(
+                        alignment: isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isMe
+                                ? const Color(0xFFE63946)
+                                : const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(m.text),
                         ),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? const Color(0xFFE63946)
-                              : const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(m.text),
                       ),
                     );
                   },

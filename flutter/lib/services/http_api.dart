@@ -189,7 +189,7 @@ class HttpApi implements ChatApi {
       '/messages/$messageId',
       options: Options(validateStatus: (_) => true),
     );
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete message');
     }
   }
